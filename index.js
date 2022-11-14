@@ -149,11 +149,27 @@ app.post('/status', async (req, res) => {
     }
 });
 
+setInterval(async () => { 
+    const timeNowMinus10s = Date.now() - 10000;
+    
+    try{
+        const deleteParticipants = await db.collection('participants').find({ lastStatus: {$lt: timeNowMinus10s} }).toArray();
 
+        const deletedParticipants = await db.collection('participants').deleteMany({lastStatus: {$lt: timeNowMinus10s}});
+ 
+        deleteParticipants.forEach(saiDaSala);
 
+    async function saiDaSala(item, indice){
+        const message = {from: item.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: dayjs().format('HH:mm:ss')};
+        const sairam = await db.collection('messages').insertOne(message);
+        console.log(sairam);
+    }
 
-
-
+    }catch(error){
+        console.error(error);
+    }
+    
+}, 15000);
 
 app.listen(5000, () => {
     console.log('Server is litening on port 5000.');
