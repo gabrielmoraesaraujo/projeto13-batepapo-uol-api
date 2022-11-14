@@ -69,7 +69,28 @@ app.get('/participants', async (req, res) => {
         res.sendStatus(500);
     }
 
+}); 
+
+app.get('/messages', async (req, res) => {
+    const limit = parseInt(req.query.limit);
+    const user = req.headers.user;
+	
+    try{
+        if(limit){
+            const messages = await db.collection('messages').find({ $or: [  {to: "Todos"}, {to: user}, {from: user}, {type: "message"} ] }).sort({_id: -1}).limit(limit).toArray();
+            res.send(messages.reverse());
+        }else{
+            const messages = await db.collection('messages').find({ $or: [  {to: "Todos"}, {to: user}, {from: user} ] }).toArray();
+            res.send(messages.reverse());
+        }
+
+    }catch(error){
+        console.error(error);
+        res.sendStatus(500);
+    }
 });
+
+
 
 
 
