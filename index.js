@@ -123,6 +123,34 @@ app.post('/messages', async(req, res) => {
     }
 });
 
+app.post('/status', async (req, res) => {
+    const user = req.headers.user;
+
+
+    if(user){
+        try{
+            const userId = await db.collection('participants').findOne({ name: user });
+            if(!userId){
+                res.sendStatus(404);
+                return;
+            }
+            const time = Date.now();
+            await db.collection('participants').updateOne({ _id: userId._id }, { $set: {lastStatus: time}});
+            res.sendStatus(200);
+        
+        }catch(error){
+            console.error(error);
+            res.sendStatus(500);
+        }
+
+
+    }else{
+     res.sendStatus(404);
+    }
+});
+
+
+
 
 
 
