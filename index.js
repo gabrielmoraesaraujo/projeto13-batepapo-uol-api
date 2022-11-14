@@ -28,6 +28,16 @@ const messageSchema = joi.object({
     from: joi.string().required()
 })
 
+app.get('/participants', async (req, res) => {
+    try {
+      const participants = await db.collection('participants').find().toArray();
+      res.send(participants);
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+    }
+  }); 
+
 
 
 app.listen(5000, () => {
