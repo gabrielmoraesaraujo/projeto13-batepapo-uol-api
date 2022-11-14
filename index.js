@@ -88,6 +88,39 @@ app.get('/messages', async (req, res) => {
         console.error(error);
         res.sendStatus(500);
     }
+}); 
+
+app.post('/messages', async(req, res) => {
+    const { to, text, type } = req.body;
+    const userFrom = req.headers.user;
+    const message = { to, text, type, from: userFrom };
+
+    const validation = messageSchema.validate(message, { abortEarly: true});
+
+    if(validation.error){
+        console.log(validation.error.details);
+        res.sendStatus(422);
+        return;
+    }
+
+    try{
+    const participants = await db.collection('participants').find().toArray();
+    const userFromExists = participants.some(p => p.name === userFrom);
+    const time = dayjs().format('HH:mm:ss');
+
+    if(userFromExists){
+        await db.collection('messages').insertOne({...message, time});
+        res.sendStatus(201);
+    }else{
+        console.log(validation.error.details);
+        res.sendStatus(422);
+        return;
+    }
+
+    }catch(error){
+        console.error(error);
+        res.sendStatus(500);
+    }
 });
 
 
